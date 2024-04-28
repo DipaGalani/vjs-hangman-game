@@ -11,8 +11,8 @@ const words = ["application", "programming", "interface", "wizard"];
 
 let selectedWord = words[Math.floor(Math.random() * words.length)];
 
-const correctLetters = [];
-const wrongLetters = [];
+let correctLetters = [];
+let wrongLetters = [];
 
 // Show the letters when player guesses correctly
 // and checks if player has guessed all the letter,
@@ -36,6 +36,75 @@ const displayWord = () => {
     popup.style.display = "flex";
   }
 };
+
+// Update the wrong letters array
+const updateWrongLettersEl = () => {
+  // Display wrong letters
+  wrongLettersEl.innerHTML = `
+        ${wrongLetters.length > 0 ? "<p>Wrong</p>" : ""}
+        ${wrongLetters.map((letter) => `<span>${letter}</span>`)}
+    `;
+
+  // Display parts
+  figureParts.forEach((part, i) => {
+    const errors = wrongLetters.length;
+    if (i < errors) {
+      part.style.display = "block";
+    } else {
+      part.style.display = "none";
+    }
+
+    // Check if lost
+    if (wrongLetters.length === figureParts.length) {
+      finalMessage.innerText = "Unfortunately you lost.";
+      popup.style.display = "flex";
+    }
+  });
+};
+
+// Show Notification
+const showNotification = () => {
+  notification.classList.add("show");
+
+  setTimeout(() => {
+    notification.classList.remove("show");
+  }, 1500);
+};
+
+// Keydown letter press
+window.addEventListener("keydown", (e) => {
+  if (e.keyCode >= 65 && e.keyCode <= 90) {
+    const letter = e.key;
+    if (selectedWord.includes(letter)) {
+      if (!correctLetters.includes(letter)) {
+        correctLetters.push(letter);
+        displayWord();
+      } else {
+        showNotification();
+      }
+    } else {
+      if (!wrongLetters.includes(letter)) {
+        wrongLetters.push(letter);
+        updateWrongLettersEl();
+      } else {
+        showNotification();
+      }
+    }
+  }
+});
+
+playAgainBtn.addEventListener("click", () => {
+  correctLetters = [];
+  wrongLetters = [];
+
+  selectedWord = words[Math.floor(Math.random() * words.length)];
+
+  displayWord();
+
+  updateWrongLettersEl();
+
+  popup.style.display = "none";
+});
 
 // On Load
 displayWord();
